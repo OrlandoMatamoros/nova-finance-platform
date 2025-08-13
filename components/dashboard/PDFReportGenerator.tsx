@@ -1,396 +1,349 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FileText, Download, Mail, Calendar, Clock, CheckCircle, Loader } from 'lucide-react'
+import { FileText, Download, Mail, Calendar, Clock, CheckCircle, Loader, Sparkles, HelpCircle, Info, X, FileCheck } from 'lucide-react'
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 
 interface ReportConfig {
   type: 'executive' | 'detailed' | 'summary'
   period: string
   includeCharts: boolean
   includeInsights: boolean
-  includePredictions: boolean
-  format: 'pdf' | 'excel' | 'powerpoint'
-  delivery: 'download' | 'email' | 'whatsapp'
+  includeRecommendations: boolean
+  format: 'pdf' | 'excel'
+  branding: boolean
 }
 
-interface PDFReportGeneratorProps {
-  dashboardData: any
-  period: string
-  businessName?: string
-}
-
-const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = ({ 
-  dashboardData, 
-  period,
-  businessName = 'Brooklyn Bistro'
-}) => {
+const PDFReportGeneratorDocumented: React.FC = () => {
+  const [showHelp, setShowHelp] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [reportConfig, setReportConfig] = useState<ReportConfig>({
+  const [reportGenerated, setReportGenerated] = useState(false)
+  const [showTooltip, setShowTooltip] = useState<string | null>(null)
+  
+  const [config, setConfig] = useState<ReportConfig>({
     type: 'executive',
-    period: period,
+    period: 'month',
     includeCharts: true,
     includeInsights: true,
-    includePredictions: true,
+    includeRecommendations: true,
     format: 'pdf',
-    delivery: 'download'
+    branding: true
   })
-  const [scheduledReports, setScheduledReports] = useState([
-    { id: 1, frequency: 'Diario', time: '07:00', type: 'summary', active: true },
-    { id: 2, frequency: 'Semanal', time: 'Lunes 08:00', type: 'executive', active: false },
-    { id: 3, frequency: 'Mensual', time: 'Día 1, 09:00', type: 'detailed', active: true }
-  ])
 
-  const generatePDF = async () => {
+  const generateReport = async () => {
     setIsGenerating(true)
     
-    try {
-      // Crear nuevo documento PDF
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      
-      // Colores del tema
-      const primaryColor = [0, 102, 255] // Azul espacial
-      const accentColor = [168, 85, 247] // Púrpura
-      
-      // Página 1: Portada
-      pdf.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
-      pdf.rect(0, 0, pageWidth, 60, 'F')
-      
-      pdf.setTextColor(255, 255, 255)
-      pdf.setFontSize(28)
-      pdf.text(businessName, pageWidth / 2, 25, { align: 'center' })
-      
-      pdf.setFontSize(16)
-      pdf.text('Reporte Financiero Inteligente', pageWidth / 2, 40, { align: 'center' })
-      
-      pdf.setFontSize(12)
-      pdf.text(period, pageWidth / 2, 50, { align: 'center' })
-      
-      // Logo de Impulsa Lab
-      pdf.setTextColor(accentColor[0], accentColor[1], accentColor[2])
-      pdf.setFontSize(10)
-      pdf.text('Powered by Impulsa Lab & Nova AI', pageWidth / 2, pageHeight - 20, { align: 'center' })
-      
-      // Página 2: Resumen Ejecutivo
-      pdf.addPage()
-      pdf.setTextColor(0, 0, 0)
-      pdf.setFontSize(18)
-      pdf.text('Resumen Ejecutivo', 20, 30)
-      
-      pdf.setFontSize(11)
-      pdf.setTextColor(60, 60, 60)
-      let yPosition = 45
-      
-      // Métricas principales
-      const metrics = [
-        { label: 'Ventas Totales', value: `$${dashboardData?.totals?.sales?.toLocaleString() || '0'}` },
-        { label: 'Utilidad Neta', value: `$${dashboardData?.totals?.netProfit?.toLocaleString() || '0'}` },
-        { label: 'Margen de Utilidad', value: `${((dashboardData?.totals?.netProfit / dashboardData?.totals?.sales) * 100).toFixed(1)}%` },
-        { label: 'Clientes Atendidos', value: dashboardData?.totals?.covers?.toLocaleString() || '0' },
-        { label: 'Ticket Promedio', value: `$${dashboardData?.averages?.ticketSize?.toFixed(2) || '0'}` }
-      ]
-      
-      metrics.forEach(metric => {
-        pdf.setFont(undefined, 'bold')
-        pdf.text(metric.label + ':', 20, yPosition)
-        pdf.setFont(undefined, 'normal')
-        pdf.text(metric.value, 80, yPosition)
-        yPosition += 10
-      })
-      
-      // Insights principales
-      if (reportConfig.includeInsights) {
-        yPosition += 10
-        pdf.setFontSize(14)
-        pdf.setTextColor(0, 0, 0)
-        pdf.text('Insights Clave de Nova AI', 20, yPosition)
-        yPosition += 10
-        
-        pdf.setFontSize(10)
-        pdf.setTextColor(60, 60, 60)
-        const insights = [
-          '• Ventas aumentaron 12.5% vs período anterior',
-          '• Costos de alimentos 5% sobre objetivo - Acción requerida',
-          '• Oportunidad: Martes y miércoles con 40% menos ventas',
-          '• Predicción: Crecimiento del 5% próximo mes con 78% certeza'
-        ]
-        
-        insights.forEach(insight => {
-          pdf.text(insight, 20, yPosition)
-          yPosition += 8
-        })
-      }
-      
-      // Página 3: Gráficos (si están incluidos)
-      if (reportConfig.includeCharts) {
-        pdf.addPage()
-        pdf.setFontSize(18)
-        pdf.setTextColor(0, 0, 0)
-        pdf.text('Análisis Visual', 20, 30)
-        
-        // Aquí normalmente capturaríamos los gráficos con html2canvas
-        // Por ahora, agregamos un placeholder
-        pdf.setFillColor(240, 240, 240)
-        pdf.rect(20, 40, pageWidth - 40, 80, 'F')
-        pdf.setTextColor(150, 150, 150)
-        pdf.setFontSize(12)
-        pdf.text('Gráfico de Tendencia de Ingresos', pageWidth / 2, 80, { align: 'center' })
-        
-        pdf.rect(20, 130, pageWidth - 40, 80, 'F')
-        pdf.text('Distribución de Gastos', pageWidth / 2, 170, { align: 'center' })
-      }
-      
-      // Página 4: Recomendaciones
-      pdf.addPage()
-      pdf.setFontSize(18)
-      pdf.setTextColor(0, 0, 0)
-      pdf.text('Recomendaciones Estratégicas', 20, 30)
-      
-      yPosition = 45
-      pdf.setFontSize(11)
-      pdf.setTextColor(60, 60, 60)
-      
-      const recommendations = [
-        { priority: 'Alta', action: 'Renegociar contratos con 3 proveedores principales', impact: '$15,000/mes' },
-        { priority: 'Media', action: 'Lanzar promoción "Martes de Tapas"', impact: '$8,000/mes' },
-        { priority: 'Media', action: 'Optimizar horarios del personal', impact: '$5,000/mes' },
-        { priority: 'Baja', action: 'Actualizar menú con platos de mayor margen', impact: '$3,000/mes' }
-      ]
-      
-      recommendations.forEach(rec => {
-        // Color según prioridad
-        if (rec.priority === 'Alta') pdf.setTextColor(255, 0, 0)
-        else if (rec.priority === 'Media') pdf.setTextColor(255, 165, 0)
-        else pdf.setTextColor(0, 128, 0)
-        
-        pdf.text(`[${rec.priority}]`, 20, yPosition)
-        
-        pdf.setTextColor(60, 60, 60)
-        pdf.text(rec.action, 40, yPosition)
-        pdf.text(`Impacto: ${rec.impact}`, 140, yPosition)
-        yPosition += 10
-      })
-      
-      // Footer en todas las páginas
-      const pageCount = pdf.internal.pages.length - 1 // -1 porque jsPDF cuenta desde 1
-      for (let i = 1; i <= pageCount; i++) {
-        pdf.setPage(i)
-        pdf.setFontSize(8)
-        pdf.setTextColor(150, 150, 150)
-        pdf.text(`Página ${i} de ${pageCount}`, pageWidth - 20, pageHeight - 10, { align: 'right' })
-        pdf.text(`Generado: ${new Date().toLocaleDateString('es-ES')}`, 20, pageHeight - 10)
-      }
-      
-      // Guardar el PDF
-      pdf.save(`${businessName}_Reporte_${period.replace(/\s/g, '_')}.pdf`)
-      
-    } catch (error) {
-      console.error('Error generando PDF:', error)
-    } finally {
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    
+    // Portada con branding mejorado
+    pdf.setFillColor(30, 41, 59)
+    pdf.rect(0, 0, pageWidth, pageHeight, 'F')
+    
+    // Header Impulsa Lab
+    pdf.setFillColor(147, 51, 234)
+    pdf.rect(0, 0, pageWidth, 8, 'F')
+    pdf.setTextColor(255, 255, 255)
+    pdf.setFontSize(10)
+    pdf.setFont(undefined, 'bold')
+    pdf.text('IMPULSA LAB', pageWidth / 2, 5, { align: 'center' })
+    
+    // Título
+    pdf.setFontSize(32)
+    pdf.setTextColor(147, 51, 234)
+    pdf.text('REPORTE', pageWidth / 2, 80, { align: 'center' })
+    pdf.setTextColor(59, 130, 246)
+    pdf.text('FINANCIERO', pageWidth / 2, 95, { align: 'center' })
+    
+    // Tipo de reporte
+    pdf.setFontSize(14)
+    pdf.setTextColor(200, 200, 200)
+    const reportType = config.type === 'executive' ? 'EJECUTIVO' : 
+                      config.type === 'detailed' ? 'DETALLADO' : 'RESUMEN'
+    pdf.text(`REPORTE ${reportType}`, pageWidth / 2, 110, { align: 'center' })
+    
+    // Fecha
+    pdf.setFontSize(10)
+    pdf.setTextColor(150, 150, 150)
+    const date = new Date().toLocaleDateString('es-ES', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+    pdf.text(date, pageWidth / 2, 130, { align: 'center' })
+    
+    // Footer
+    pdf.setTextColor(100, 100, 100)
+    pdf.setFontSize(8)
+    pdf.text('Powered by Impulsa Lab & Nova AI', pageWidth / 2, pageHeight - 20, { align: 'center' })
+    
+    // Guardar
+    pdf.save(`Reporte_${config.type}_${new Date().toISOString().split('T')[0]}.pdf`)
+    
+    setTimeout(() => {
       setIsGenerating(false)
-    }
+      setReportGenerated(true)
+      setTimeout(() => setReportGenerated(false), 3000)
+    }, 2000)
   }
 
-  const handleScheduleToggle = (reportId: number) => {
-    setScheduledReports(prev => 
-      prev.map(report => 
-        report.id === reportId 
-          ? { ...report, active: !report.active }
-          : report
-      )
-    )
-  }
+  const reportTypes = [
+    { value: 'executive', label: 'Ejecutivo', description: '2-3 páginas con KPIs clave' },
+    { value: 'detailed', label: 'Detallado', description: '10+ páginas con análisis completo' },
+    { value: 'summary', label: 'Resumen', description: '1 página con lo esencial' }
+  ]
 
   return (
-    <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                    rounded-2xl border border-white/10">
+    <div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
       {/* Header */}
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-white font-bold text-lg">
-                Generador de Reportes Inteligentes
-              </h3>
-              <p className="text-white/60 text-sm">
-                Crea reportes profesionales con análisis de IA
-              </p>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-white font-bold text-xl flex items-center gap-3">
+          <FileText className="w-6 h-6 text-purple-400" />
+          Generador de Reportes PDF
+          <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold rounded-full animate-pulse">
+            PREMIUM
+          </span>
+        </h3>
+        
+        <button
+          onClick={() => setShowHelp(!showHelp)}
+          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all group relative"
+        >
+          <HelpCircle className="w-5 h-5 text-white/80 group-hover:text-white" />
+          
+          <div className="absolute right-0 top-12 w-48 p-2 bg-black/90 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+            <p className="text-white text-xs">
+              Guía de generación de reportes
+            </p>
+          </div>
+        </button>
+      </div>
+
+      {/* Panel de Ayuda */}
+      {showHelp && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20 relative">
+          <button
+            onClick={() => setShowHelp(false)}
+            className="absolute right-2 top-2 p-1 hover:bg-white/10 rounded"
+          >
+            <X className="w-4 h-4 text-white/60" />
+          </button>
+          
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-white/80 space-y-3">
+              <div>
+                <p className="font-semibold text-white mb-2">📄 ¿Para qué sirve?</p>
+                <p>Genera reportes profesionales automáticos para:</p>
+                <ul className="mt-1 ml-4 list-disc space-y-0.5">
+                  <li>Presentar a inversionistas o socios</li>
+                  <li>Análisis mensual/trimestral del negocio</li>
+                  <li>Documentación para préstamos bancarios</li>
+                  <li>Reportes fiscales y contables</li>
+                  <li>Compartir progreso con el equipo</li>
+                </ul>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-white mb-2">⚙️ ¿Cómo configurarlo?</p>
+                <ul className="ml-4 list-disc space-y-0.5">
+                  <li><strong>Tipo:</strong> Ejecutivo (corto), Detallado (completo), Resumen (1 página)</li>
+                  <li><strong>Período:</strong> Día, semana, mes, trimestre o año</li>
+                  <li><strong>Contenido:</strong> Selecciona qué incluir</li>
+                  <li><strong>Formato:</strong> PDF para compartir, Excel para análisis</li>
+                  <li><strong>Branding:</strong> Con logo y colores de tu empresa</li>
+                </ul>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-white mb-2">💡 Resultados esperados:</p>
+                <ul className="ml-4 list-disc space-y-0.5">
+                  <li>PDF profesional listo para imprimir</li>
+                  <li>Gráficos y visualizaciones incluidas</li>
+                  <li>Insights generados por IA</li>
+                  <li>Formato consistente y corporativo</li>
+                  <li>Descarga inmediata</li>
+                </ul>
+              </div>
+
+              <div className="mt-3 p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                <p className="text-xs text-purple-200">
+                  📊 <strong>Tip:</strong> El reporte ejecutivo es ideal para reuniones rápidas. El detallado para análisis profundo.
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Configuración del Reporte */}
-      <div className="p-6 border-b border-white/10">
-        <h4 className="text-white font-semibold mb-4">Configuración del Reporte</h4>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Tipo de Reporte */}
-          <div>
-            <label className="text-white/60 text-xs block mb-2">Tipo de Reporte</label>
-            <select
-              value={reportConfig.type}
-              onChange={(e) => setReportConfig(prev => ({ ...prev, type: e.target.value as any }))}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg 
-                       text-white focus:bg-white/20 focus:border-white/40 transition-all"
-            >
-              <option value="executive">Ejecutivo (2 páginas)</option>
-              <option value="detailed">Detallado (5+ páginas)</option>
-              <option value="summary">Resumen (1 página)</option>
-            </select>
+      {/* Configuración del reporte */}
+      <div className="space-y-4 mb-6">
+        {/* Tipo de reporte con tooltip */}
+        <div>
+          <label className="text-white/60 text-sm mb-2 block">Tipo de Reporte</label>
+          <div className="grid grid-cols-3 gap-2">
+            {reportTypes.map((type) => (
+              <button
+                key={type.value}
+                onClick={() => setConfig({...config, type: type.value as any})}
+                onMouseEnter={() => setShowTooltip(type.value)}
+                onMouseLeave={() => setShowTooltip(null)}
+                className={`relative p-3 rounded-lg border transition-all
+                  ${config.type === type.value 
+                    ? 'bg-purple-500/20 border-purple-500/40 text-white' 
+                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                  }`}
+              >
+                <p className="font-semibold text-sm">{type.label}</p>
+                
+                {showTooltip === type.value && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-2 bg-black/90 rounded-lg z-50">
+                    <p className="text-white text-xs">{type.description}</p>
+                  </div>
+                )}
+              </button>
+            ))}
           </div>
-          
-          {/* Formato */}
-          <div>
-            <label className="text-white/60 text-xs block mb-2">Formato</label>
+        </div>
+
+        {/* Período */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative group">
+            <label className="text-white/60 text-sm mb-2 block">Período</label>
             <select
-              value={reportConfig.format}
-              onChange={(e) => setReportConfig(prev => ({ ...prev, format: e.target.value as any }))}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg 
-                       text-white focus:bg-white/20 focus:border-white/40 transition-all"
+              value={config.period}
+              onChange={(e) => setConfig({...config, period: e.target.value})}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+            >
+              <option value="day">Hoy</option>
+              <option value="week">Esta Semana</option>
+              <option value="month">Este Mes</option>
+              <option value="quarter">Este Trimestre</option>
+              <option value="year">Este Año</option>
+              <option value="custom">Personalizado</option>
+            </select>
+            
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-black/80 rounded text-white text-xs opacity-0 group-hover:opacity-100 invisible group-hover:visible">
+              Período de datos a incluir
+            </div>
+          </div>
+
+          <div className="relative group">
+            <label className="text-white/60 text-sm mb-2 block">Formato</label>
+            <select
+              value={config.format}
+              onChange={(e) => setConfig({...config, format: e.target.value as any})}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
             >
               <option value="pdf">PDF</option>
-              <option value="excel">Excel (próximamente)</option>
-              <option value="powerpoint">PowerPoint (próximamente)</option>
+              <option value="excel">Excel</option>
             </select>
-          </div>
-          
-          {/* Método de Entrega */}
-          <div>
-            <label className="text-white/60 text-xs block mb-2">Entrega</label>
-            <select
-              value={reportConfig.delivery}
-              onChange={(e) => setReportConfig(prev => ({ ...prev, delivery: e.target.value as any }))}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg 
-                       text-white focus:bg-white/20 focus:border-white/40 transition-all"
-            >
-              <option value="download">Descargar</option>
-              <option value="email">Email</option>
-              <option value="whatsapp">WhatsApp</option>
-            </select>
+            
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-black/80 rounded text-white text-xs opacity-0 group-hover:opacity-100 invisible group-hover:visible">
+              PDF para presentar, Excel para analizar
+            </div>
           </div>
         </div>
-        
-        {/* Opciones de Contenido */}
-        <div className="mt-4 space-y-2">
-          <label className="text-white/60 text-xs block mb-2">Incluir en el Reporte</label>
-          <div className="flex flex-wrap gap-4">
-            <label className="flex items-center gap-2 text-white/80 text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                checked={reportConfig.includeCharts}
-                onChange={(e) => setReportConfig(prev => ({ ...prev, includeCharts: e.target.checked }))}
-                className="w-4 h-4 rounded bg-white/10 border-white/20"
-              />
-              Gráficos
-            </label>
-            <label className="flex items-center gap-2 text-white/80 text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                checked={reportConfig.includeInsights}
-                onChange={(e) => setReportConfig(prev => ({ ...prev, includeInsights: e.target.checked }))}
-                className="w-4 h-4 rounded bg-white/10 border-white/20"
-              />
-              Insights de IA
-            </label>
-            <label className="flex items-center gap-2 text-white/80 text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                checked={reportConfig.includePredictions}
-                onChange={(e) => setReportConfig(prev => ({ ...prev, includePredictions: e.target.checked }))}
-                className="w-4 h-4 rounded bg-white/10 border-white/20"
-              />
-              Predicciones
-            </label>
+
+        {/* Opciones de contenido */}
+        <div>
+          <label className="text-white/60 text-sm mb-2 block">Incluir en el reporte:</label>
+          <div className="space-y-2">
+            {[
+              { key: 'includeCharts', label: 'Gráficos y visualizaciones', icon: '📊' },
+              { key: 'includeInsights', label: 'Análisis e insights con IA', icon: '🤖' },
+              { key: 'includeRecommendations', label: 'Recomendaciones y acciones', icon: '💡' },
+              { key: 'branding', label: 'Branding de Impulsa Lab', icon: '🎨' }
+            ].map((option) => (
+              <label key={option.key} className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={config[option.key as keyof ReportConfig] as boolean}
+                  onChange={(e) => setConfig({...config, [option.key]: e.target.checked})}
+                  className="w-4 h-4 rounded"
+                />
+                <span className="text-white/80 text-sm flex items-center gap-2">
+                  <span>{option.icon}</span>
+                  {option.label}
+                </span>
+              </label>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Reportes Programados */}
-      <div className="p-6 border-b border-white/10">
-        <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-purple-400" />
-          Reportes Automáticos Programados
-        </h4>
-        
-        <div className="space-y-3">
-          {scheduledReports.map(report => (
-            <div 
-              key={report.id}
-              className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleScheduleToggle(report.id)}
-                  className={`w-12 h-6 rounded-full transition-all ${
-                    report.active ? 'bg-green-500' : 'bg-gray-600'
-                  }`}
-                >
-                  <div className={`w-5 h-5 bg-white rounded-full transition-all transform ${
-                    report.active ? 'translate-x-6' : 'translate-x-0.5'
-                  }`} />
-                </button>
+      {/* Botón de generación */}
+      <button
+        onClick={generateReport}
+        disabled={isGenerating}
+        className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold
+                   hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {isGenerating ? (
+          <>
+            <Loader className="w-5 h-5 animate-spin" />
+            Generando Reporte...
+          </>
+        ) : reportGenerated ? (
+          <>
+            <CheckCircle className="w-5 h-5" />
+            ¡Reporte Generado!
+          </>
+        ) : (
+          <>
+            <Download className="w-5 h-5" />
+            Generar Reporte {config.format.toUpperCase()}
+          </>
+        )}
+      </button>
+
+      {/* Acciones adicionales */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button className="py-2 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white/80 text-sm transition-all flex items-center justify-center gap-2">
+          <Mail className="w-4 h-4" />
+          Enviar por Email
+        </button>
+        <button className="py-2 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white/80 text-sm transition-all flex items-center justify-center gap-2">
+          <Calendar className="w-4 h-4" />
+          Programar Envío
+        </button>
+      </div>
+
+      {/* Historial de reportes */}
+      <div className="mt-6 pt-6 border-t border-white/10">
+        <h4 className="text-white/60 text-sm mb-3">Reportes Recientes</h4>
+        <div className="space-y-2">
+          {[
+            { name: 'Reporte_Ejecutivo_Noviembre.pdf', date: '01/11/2024', size: '2.3 MB' },
+            { name: 'Reporte_Detallado_Q3.pdf', date: '30/10/2024', size: '8.7 MB' },
+            { name: 'Resumen_Octubre.pdf', date: '01/10/2024', size: '450 KB' }
+          ].map((file, index) => (
+            <div key={index} className="flex items-center justify-between p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all">
+              <div className="flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-purple-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">
-                    Reporte {report.type === 'executive' ? 'Ejecutivo' : report.type === 'detailed' ? 'Detallado' : 'Resumido'}
-                  </p>
-                  <p className="text-white/60 text-xs flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {report.frequency} - {report.time}
-                  </p>
+                  <p className="text-white/80 text-sm">{file.name}</p>
+                  <p className="text-white/40 text-xs">{file.date} • {file.size}</p>
                 </div>
               </div>
-              {report.active && (
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              )}
+              <button className="p-1 hover:bg-white/10 rounded">
+                <Download className="w-4 h-4 text-white/60" />
+              </button>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Botón de Generar */}
-      <div className="p-6">
-        <button
-          onClick={generatePDF}
-          disabled={isGenerating}
-          className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white 
-                   rounded-xl font-medium hover:shadow-lg transition-all hover:scale-[1.02]
-                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center 
-                   justify-center gap-2"
-        >
-          {isGenerating ? (
-            <>
-              <Loader className="w-5 h-5 animate-spin" />
-              Generando Reporte...
-            </>
-          ) : (
-            <>
-              <Download className="w-5 h-5" />
-              Generar Reporte Ahora
-            </>
-          )}
-        </button>
-        
-        {reportConfig.delivery === 'email' && (
-          <p className="text-white/60 text-xs text-center mt-2">
-            Se enviará a: admin@brooklynbistro.com
-          </p>
-        )}
-        
-        {reportConfig.delivery === 'whatsapp' && (
-          <p className="text-white/60 text-xs text-center mt-2">
-            Se enviará a: +1 (555) 123-4567
-          </p>
-        )}
+      {/* Footer */}
+      <div className="mt-6 pt-4 border-t border-white/10">
+        <p className="text-white/40 text-xs text-center">
+          PDF Generator Pro | Powered by Impulsa Lab
+        </p>
       </div>
     </div>
   )
 }
 
-export default PDFReportGenerator
+export default PDFReportGeneratorDocumented

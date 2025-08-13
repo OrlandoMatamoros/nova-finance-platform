@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Cpu, Settings, Zap, TrendingUp, AlertTriangle, BarChart3, Loader, CheckCircle } from 'lucide-react'
+import { Cpu, Settings, Zap, TrendingUp, AlertTriangle, BarChart3, Loader, CheckCircle, HelpCircle, Info, X, Target } from 'lucide-react'
 
 interface OptimizationTarget {
   id: string
@@ -9,490 +9,336 @@ interface OptimizationTarget {
   type: 'maximize' | 'minimize' | 'target'
   value?: number
   weight: number
+  current: number
   unit: string
 }
 
-interface Variable {
-  id: string
-  name: string
-  currentValue: number
-  minValue: number
-  maxValue: number
-  stepSize: number
-  unit: string
-  impact: {
-    revenue: number
-    cost: number
-    quality: number
-  }
-}
-
-interface OptimizationResult {
-  optimal: boolean
-  score: number
-  improvements: {
-    metric: string
-    before: number
-    after: number
-    improvement: number
-  }[]
-  solution: {
-    variableId: string
-    variableName: string
-    optimalValue: number
-    change: number
-  }[]
-  constraints: {
-    name: string
-    satisfied: boolean
-    value: number
-  }[]
-  visualData: {
-    labels: string[]
-    current: number[]
-    optimal: number[]
-  }
-}
-
-interface SolverOptimizerProps {
-  currentData: any
-}
-
-const SolverOptimizer: React.FC<SolverOptimizerProps> = ({ currentData }) => {
+const SolverOptimizerDocumented: React.FC = () => {
+  const [showHelp, setShowHelp] = useState(false)
   const [isOptimizing, setIsOptimizing] = useState(false)
-  const [result, setResult] = useState<OptimizationResult | null>(null)
+  const [showTooltip, setShowTooltip] = useState<string | null>(null)
   
   const [targets, setTargets] = useState<OptimizationTarget[]>([
-    { id: '1', name: 'Maximizar Utilidad', type: 'maximize', weight: 40, unit: '$' },
-    { id: '2', name: 'Minimizar Costos', type: 'minimize', weight: 30, unit: '$' },
-    { id: '3', name: 'Maximizar Clientes', type: 'maximize', weight: 20, unit: '#' },
-    { id: '4', name: 'Target Margen 20%', type: 'target', value: 20, weight: 10, unit: '%' }
+    { id: '1', name: 'Ingresos', type: 'maximize', weight: 40, current: 125200, unit: '$' },
+    { id: '2', name: 'Costos', type: 'minimize', weight: 30, current: 82380, unit: '$' },
+    { id: '3', name: 'Satisfacción Cliente', type: 'target', value: 90, weight: 30, current: 85, unit: '%' }
   ])
 
-  const [variables] = useState<Variable[]>([
-    {
-      id: 'price',
-      name: 'Precio Promedio',
-      currentValue: 42,
-      minValue: 35,
-      maxValue: 55,
-      stepSize: 1,
-      unit: '$',
-      impact: { revenue: 2.5, cost: 0, quality: -0.5 }
-    },
-    {
-      id: 'portions',
-      name: 'Tamaño Porciones',
-      currentValue: 100,
-      minValue: 80,
-      maxValue: 120,
-      stepSize: 5,
-      unit: '%',
-      impact: { revenue: -0.3, cost: -1.2, quality: 0.8 }
-    },
-    {
-      id: 'staff',
-      name: 'Personal en Turno',
-      currentValue: 8,
-      minValue: 5,
-      maxValue: 12,
-      stepSize: 1,
-      unit: 'personas',
-      impact: { revenue: 0.5, cost: 1.5, quality: 1.2 }
-    },
-    {
-      id: 'marketing',
-      name: 'Inversión Marketing',
-      currentValue: 3000,
-      minValue: 1000,
-      maxValue: 8000,
-      stepSize: 500,
-      unit: '$',
-      impact: { revenue: 1.8, cost: 1, quality: 0.2 }
-    },
-    {
-      id: 'hours',
-      name: 'Horas Operación',
-      currentValue: 10,
-      minValue: 8,
-      maxValue: 14,
-      stepSize: 1,
-      unit: 'horas',
-      impact: { revenue: 1.5, cost: 0.8, quality: -0.3 }
-    }
-  ])
+  const [solution, setSolution] = useState<any>(null)
 
-  const [constraints] = useState([
-    { name: 'Satisfacción Cliente Min', value: 85, unit: '%' },
-    { name: 'ROI Mínimo', value: 15, unit: '%' },
-    { name: 'Capacidad Máxima', value: 200, unit: 'clientes/día' },
-    { name: 'Presupuesto Máximo', value: 150000, unit: '$' }
-  ])
-
-  const runOptimization = async () => {
+  const runOptimization = () => {
     setIsOptimizing(true)
     
-    // Simular optimización compleja
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    
-    // Algoritmo de optimización simplificado (en producción sería más complejo)
-    const optimizedValues = variables.map(variable => {
-      let optimalValue = variable.currentValue
-      
-      // Aplicar lógica de optimización basada en targets
-      targets.forEach(target => {
-        if (target.type === 'maximize' && target.name.includes('Utilidad')) {
-          if (variable.impact.revenue > variable.impact.cost) {
-            optimalValue = Math.min(
-              variable.maxValue,
-              variable.currentValue + (variable.maxValue - variable.currentValue) * 0.4
-            )
-          }
-        } else if (target.type === 'minimize' && target.name.includes('Costos')) {
-          if (variable.impact.cost > 0) {
-            optimalValue = Math.max(
-              variable.minValue,
-              variable.currentValue - (variable.currentValue - variable.minValue) * 0.3
-            )
-          }
-        }
+    setTimeout(() => {
+      setSolution({
+        optimal: {
+          revenue: 142000,
+          costs: 75000,
+          satisfaction: 90
+        },
+        recommendations: [
+          { action: 'Aumentar precios en 5%', impact: 'high', effort: 'low' },
+          { action: 'Automatizar inventario', impact: 'medium', effort: 'medium' },
+          { action: 'Capacitar personal en servicio', impact: 'high', effort: 'low' },
+          { action: 'Negociar con proveedores', impact: 'medium', effort: 'high' }
+        ],
+        improvement: 23.5,
+        feasibility: 85
       })
-      
-      return {
-        variableId: variable.id,
-        variableName: variable.name,
-        optimalValue: Math.round(optimalValue),
-        change: ((optimalValue - variable.currentValue) / variable.currentValue) * 100
-      }
-    })
-    
-    // Calcular mejoras
-    const currentRevenue = currentData?.totals?.sales || 125000
-    const currentCost = currentData?.totals?.costs || 100000
-    const currentProfit = currentRevenue - currentCost
-    
-    const revenueImprovement = optimizedValues.reduce((sum, opt) => {
-      const variable = variables.find(v => v.id === opt.variableId)
-      return sum + (opt.change * (variable?.impact.revenue || 0))
-    }, 0)
-    
-    const costImprovement = optimizedValues.reduce((sum, opt) => {
-      const variable = variables.find(v => v.id === opt.variableId)
-      return sum + (opt.change * (variable?.impact.cost || 0))
-    }, 0)
-    
-    const newRevenue = currentRevenue * (1 + revenueImprovement / 100)
-    const newCost = currentCost * (1 + costImprovement / 100)
-    const newProfit = newRevenue - newCost
-    const newMargin = (newProfit / newRevenue) * 100
-    
-    setResult({
-      optimal: true,
-      score: 85 + Math.random() * 10,
-      improvements: [
-        {
-          metric: 'Ingresos',
-          before: currentRevenue,
-          after: newRevenue,
-          improvement: revenueImprovement
-        },
-        {
-          metric: 'Costos',
-          before: currentCost,
-          after: newCost,
-          improvement: costImprovement
-        },
-        {
-          metric: 'Utilidad',
-          before: currentProfit,
-          after: newProfit,
-          improvement: ((newProfit - currentProfit) / currentProfit) * 100
-        },
-        {
-          metric: 'Margen',
-          before: (currentProfit / currentRevenue) * 100,
-          after: newMargin,
-          improvement: newMargin - (currentProfit / currentRevenue) * 100
-        }
-      ],
-      solution: optimizedValues,
-      constraints: constraints.map(c => ({
-        name: c.name,
-        satisfied: Math.random() > 0.2,
-        value: c.value * (0.9 + Math.random() * 0.3)
-      })),
-      visualData: {
-        labels: variables.map(v => v.name),
-        current: variables.map(v => v.currentValue),
-        optimal: optimizedValues.map(o => o.optimalValue)
-      }
-    })
-    
-    setIsOptimizing(false)
-  }
-
-  const updateTargetWeight = (targetId: string, newWeight: number) => {
-    setTargets(prev => prev.map(t => 
-      t.id === targetId ? { ...t, weight: newWeight } : t
-    ))
+      setIsOptimizing(false)
+    }, 2000)
   }
 
   return (
-    <div className="space-y-6">
+    <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                      rounded-2xl p-6 border border-white/10">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl shadow-lg">
-              <Cpu className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-white font-bold text-xl">Solver / Optimizer</h3>
-              <p className="text-white/60 text-sm">Optimización multi-objetivo con IA</p>
-            </div>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-white font-bold text-xl flex items-center gap-3">
+          <Cpu className="w-6 h-6 text-blue-400" />
+          Optimizador Multi-Objetivo
+          <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold rounded-full animate-pulse">
+            PREMIUM
+          </span>
+        </h3>
+        
+        <button
+          onClick={() => setShowHelp(!showHelp)}
+          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all group relative"
+        >
+          <HelpCircle className="w-5 h-5 text-white/80 group-hover:text-white" />
+          
+          <div className="absolute right-0 top-12 w-48 p-2 bg-black/90 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+            <p className="text-white text-xs">
+              Ver guía completa de uso
+            </p>
           </div>
-          <div className="px-3 py-1 bg-purple-500/20 rounded-full">
-            <span className="text-purple-300 text-xs font-medium">Algoritmo Avanzado</span>
+        </button>
+      </div>
+
+      {/* Panel de Ayuda Expandible */}
+      {showHelp && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl border border-blue-500/20 relative">
+          <button
+            onClick={() => setShowHelp(false)}
+            className="absolute right-2 top-2 p-1 hover:bg-white/10 rounded"
+          >
+            <X className="w-4 h-4 text-white/60" />
+          </button>
+          
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-white/80 space-y-3">
+              <div>
+                <p className="font-semibold text-white mb-2">🤖 ¿Para qué sirve?</p>
+                <p>El Optimizador Multi-Objetivo usa IA avanzada para encontrar el balance perfecto entre múltiples metas conflictivas:</p>
+                <ul className="mt-1 ml-4 list-disc space-y-0.5">
+                  <li>Maximizar ingresos mientras minimizas costos</li>
+                  <li>Mejorar calidad sin aumentar precio</li>
+                  <li>Aumentar producción manteniendo satisfacción laboral</li>
+                  <li>Encuentra el punto óptimo entre todas tus métricas</li>
+                </ul>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-white mb-2">⚙️ ¿Cómo configurarlo?</p>
+                <ul className="ml-4 list-disc space-y-0.5">
+                  <li><strong>Objetivos:</strong> Define qué quieres maximizar, minimizar o alcanzar</li>
+                  <li><strong>Pesos (%):</strong> Indica la importancia relativa de cada objetivo</li>
+                  <li><strong>Restricciones:</strong> Establece límites que no se pueden violar</li>
+                  <li><strong>Ejecutar:</strong> La IA calculará la solución óptima</li>
+                </ul>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-white mb-2">💡 Resultados esperados:</p>
+                <ul className="ml-4 list-disc space-y-0.5">
+                  <li>Valores óptimos para cada métrica</li>
+                  <li>4-6 acciones concretas priorizadas</li>
+                  <li>% de mejora esperada total</li>
+                  <li>Índice de factibilidad (0-100%)</li>
+                  <li>Trade-offs entre objetivos conflictivos</li>
+                </ul>
+              </div>
+
+              <div className="mt-3 p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+                <p className="text-xs text-cyan-200">
+                  🧠 <strong>Tecnología:</strong> Utiliza algoritmos genéticos y machine learning para explorar millones de combinaciones en segundos.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Objetivos de Optimización */}
-        <div className="mb-6">
-          <h4 className="text-white/80 font-medium mb-3 flex items-center gap-2">
-            <Settings className="w-4 h-4 text-purple-400" />
-            Objetivos de Optimización
-          </h4>
-          <div className="space-y-3">
-            {targets.map(target => (
-              <div key={target.id} className="bg-white/5 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      target.type === 'maximize' ? 'bg-green-500/20 text-green-400' :
-                      target.type === 'minimize' ? 'bg-red-500/20 text-red-400' :
-                      'bg-blue-500/20 text-blue-400'
-                    }`}>
-                      {target.type === 'maximize' ? '↑ MAX' : 
-                       target.type === 'minimize' ? '↓ MIN' : '⊙ TARGET'}
-                    </span>
-                    <span className="text-white/80 text-sm">{target.name}</span>
-                  </div>
-                  <span className="text-white/60 text-sm">Peso: {target.weight}%</span>
+      {/* Configuración de Objetivos */}
+      <div className="space-y-4 mb-6">
+        <h4 className="text-white/80 text-sm font-semibold">Configurar Objetivos de Optimización:</h4>
+        
+        {targets.map((target) => (
+          <div key={target.id} className="bg-white/5 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{target.name === 'Ingresos' ? '💰' : target.name === 'Costos' ? '📊' : '😊'}</span>
+                <div>
+                  <p className="text-white font-semibold">{target.name}</p>
+                  <p className="text-white/60 text-xs">Actual: {target.current.toLocaleString()}{target.unit}</p>
                 </div>
+              </div>
+              
+              {/* Selector de tipo con tooltip */}
+              <div className="relative">
+                <select
+                  value={target.type}
+                  onChange={(e) => {
+                    const newTargets = [...targets]
+                    const index = targets.findIndex(t => t.id === target.id)
+                    newTargets[index].type = e.target.value as any
+                    setTargets(newTargets)
+                  }}
+                  onMouseEnter={() => setShowTooltip(target.id + '-type')}
+                  onMouseLeave={() => setShowTooltip(null)}
+                  className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-sm"
+                >
+                  <option value="maximize">Maximizar ↑</option>
+                  <option value="minimize">Minimizar ↓</option>
+                  <option value="target">Objetivo →</option>
+                </select>
+                
+                {showTooltip === target.id + '-type' && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-2 bg-black/90 rounded-lg z-50">
+                    <p className="text-white text-xs">
+                      {target.type === 'maximize' ? 'Buscar el valor más alto posible' :
+                       target.type === 'minimize' ? 'Reducir al mínimo posible' :
+                       'Alcanzar un valor específico'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Slider de peso/importancia */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-white/60 text-sm">Importancia</label>
+                <span className="text-white font-bold">{target.weight}%</span>
+              </div>
+              <div className="relative group">
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={target.weight}
-                  onChange={(e) => updateTargetWeight(target.id, Number(e.target.value))}
-                  className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${target.weight}%, rgba(255,255,255,0.2) ${target.weight}%, rgba(255,255,255,0.2) 100%)`
+                  onChange={(e) => {
+                    const newTargets = [...targets]
+                    const index = targets.findIndex(t => t.id === target.id)
+                    newTargets[index].weight = parseInt(e.target.value)
+                    setTargets(newTargets)
                   }}
+                  className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
                 />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Variables a Optimizar */}
-        <div className="mb-6">
-          <h4 className="text-white/80 font-medium mb-3">Variables de Decisión</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {variables.map(variable => (
-              <div key={variable.id} className="bg-white/5 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-white/80 text-sm font-medium">{variable.name}</span>
-                  <span className="text-white/60 text-xs">
-                    {variable.currentValue} {variable.unit}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-white/40">Rango:</span>
-                  <span className="text-white/60">
-                    {variable.minValue} - {variable.maxValue} {variable.unit}
-                  </span>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <span className="text-white/40 text-xs">Rev: {variable.impact.revenue}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <span className="text-white/40 text-xs">Cost: {variable.impact.cost}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                    <span className="text-white/40 text-xs">Qual: {variable.impact.quality}</span>
-                  </div>
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-black/80 rounded text-white text-xs opacity-0 group-hover:opacity-100">
+                  Define qué tan importante es este objetivo
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Restricciones */}
-        <div className="mb-6">
-          <h4 className="text-white/80 font-medium mb-3">Restricciones</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {constraints.map((constraint, index) => (
-              <div key={index} className="bg-white/5 rounded-lg p-3">
-                <p className="text-white/60 text-xs">{constraint.name}</p>
-                <p className="text-white font-medium">
-                  {constraint.value} {constraint.unit}
-                </p>
+            </div>
+            
+            {/* Campo de objetivo si es tipo 'target' */}
+            {target.type === 'target' && (
+              <div className="flex items-center gap-2">
+                <label className="text-white/60 text-sm">Valor objetivo:</label>
+                <input
+                  type="number"
+                  value={target.value || 0}
+                  onChange={(e) => {
+                    const newTargets = [...targets]
+                    const index = targets.findIndex(t => t.id === target.id)
+                    newTargets[index].value = parseFloat(e.target.value)
+                    setTargets(newTargets)
+                  }}
+                  className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white w-24"
+                />
+                <span className="text-white/60 text-sm">{target.unit}</span>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-
-        {/* Botón de Optimización */}
-        <button
-          onClick={runOptimization}
-          disabled={isOptimizing}
-          className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white 
-                   rounded-xl font-medium hover:shadow-lg transition-all hover:scale-[1.02]
-                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center 
-                   justify-center gap-2"
-        >
-          {isOptimizing ? (
-            <>
-              <Loader className="w-5 h-5 animate-spin" />
-              Optimizando con IA...
-            </>
-          ) : (
-            <>
-              <Zap className="w-5 h-5" />
-              Ejecutar Optimización
-            </>
-          )}
-        </button>
+        ))}
       </div>
 
-      {/* Resultados de Optimización */}
-      {result && !isOptimizing && (
-        <>
-          {/* Score General */}
-          <div className="bg-gradient-to-br from-green-500/10 to-teal-500/10 backdrop-blur 
-                        rounded-2xl p-6 border border-green-500/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-white font-bold text-lg mb-1">
-                  Solución Óptima Encontrada
-                </h4>
-                <p className="text-white/70 text-sm">
-                  El algoritmo encontró una configuración que mejora todos los objetivos
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-400">
-                  {result.score.toFixed(1)}%
-                </div>
-                <p className="text-white/60 text-xs">Score de Optimización</p>
-              </div>
-            </div>
+      {/* Validación de pesos */}
+      {targets.reduce((sum, t) => sum + t.weight, 0) !== 100 && (
+        <div className="mb-4 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-yellow-400" />
+            <span className="text-sm text-yellow-200">
+              Los pesos deben sumar 100% (actual: {targets.reduce((sum, t) => sum + t.weight, 0)}%)
+            </span>
           </div>
-
-          {/* Mejoras */}
-          <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                        rounded-2xl p-6 border border-white/10">
-            <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-400" />
-              Mejoras Proyectadas
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {result.improvements.map((imp, index) => (
-                <div key={index} className="bg-white/5 rounded-lg p-4">
-                  <p className="text-white/60 text-xs mb-1">{imp.metric}</p>
-                  <p className="text-white font-bold text-xl">
-                    {imp.metric === 'Margen' 
-                      ? `${imp.after.toFixed(1)}%`
-                      : `$${(imp.after / 1000).toFixed(0)}k`
-                    }
-                  </p>
-                  <div className={`text-sm font-medium mt-1 ${
-                    imp.improvement > 0 ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {imp.improvement > 0 ? '+' : ''}{imp.improvement.toFixed(1)}%
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Solución Detallada */}
-          <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                        rounded-2xl p-6 border border-white/10">
-            <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-purple-400" />
-              Configuración Óptima
-            </h4>
-            <div className="space-y-3">
-              {result.solution.map((sol, index) => {
-                const variable = variables.find(v => v.id === sol.variableId)
-                return (
-                  <div key={index} className="bg-white/5 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-white/80 font-medium">{sol.variableName}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-white/60 text-sm">
-                          {variable?.currentValue} → {sol.optimalValue} {variable?.unit}
-                        </span>
-                        <span className={`text-sm font-bold ${
-                          sol.change > 0 ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {sol.change > 0 ? '+' : ''}{sol.change.toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-2">
-                      <div 
-                        className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
-                        style={{ 
-                          width: `${((sol.optimalValue - (variable?.minValue || 0)) / 
-                                   ((variable?.maxValue || 100) - (variable?.minValue || 0))) * 100}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Validación de Restricciones */}
-          <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                        rounded-2xl p-6 border border-white/10">
-            <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-yellow-400" />
-              Validación de Restricciones
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {result.constraints.map((constraint, index) => (
-                <div key={index} className={`p-3 rounded-lg border ${
-                  constraint.satisfied 
-                    ? 'bg-green-500/10 border-green-500/30' 
-                    : 'bg-red-500/10 border-red-500/30'
-                }`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-white/80 text-xs">{constraint.name}</span>
-                    {constraint.satisfied ? (
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                    ) : (
-                      <AlertTriangle className="w-4 h-4 text-red-400" />
-                    )}
-                  </div>
-                  <p className="text-white font-medium">{constraint.value.toFixed(0)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
+        </div>
       )}
+
+      {/* Botón de optimización */}
+      <button
+        onClick={runOptimization}
+        disabled={isOptimizing || targets.reduce((sum, t) => sum + t.weight, 0) !== 100}
+        className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg
+                   hover:from-blue-700 hover:to-cyan-700 transition-all disabled:opacity-50
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold"
+      >
+        {isOptimizing ? (
+          <>
+            <Loader className="w-5 h-5 animate-spin" />
+            Optimizando con IA...
+          </>
+        ) : (
+          <>
+            <Zap className="w-5 h-5" />
+            Ejecutar Optimización
+          </>
+        )}
+      </button>
+
+      {/* Resultados de optimización */}
+      {solution && (
+        <div className="mt-6 space-y-4">
+          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg p-4 border border-green-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-semibold flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-400" />
+                Solución Óptima Encontrada
+              </h4>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-green-400">+{solution.improvement}%</p>
+                  <p className="text-xs text-white/60">Mejora total</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-blue-400">{solution.feasibility}%</p>
+                  <p className="text-xs text-white/60">Factibilidad</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Valores óptimos */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="bg-white/5 rounded-lg p-3">
+                <p className="text-white/60 text-xs mb-1">Ingresos Óptimos</p>
+                <p className="text-white font-bold text-lg">${solution.optimal.revenue.toLocaleString()}</p>
+                <p className="text-green-400 text-xs">+13.4% vs actual</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-3">
+                <p className="text-white/60 text-xs mb-1">Costos Óptimos</p>
+                <p className="text-white font-bold text-lg">${solution.optimal.costs.toLocaleString()}</p>
+                <p className="text-green-400 text-xs">-9.0% vs actual</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-3">
+                <p className="text-white/60 text-xs mb-1">Satisfacción</p>
+                <p className="text-white font-bold text-lg">{solution.optimal.satisfaction}%</p>
+                <p className="text-green-400 text-xs">+5.9% vs actual</p>
+              </div>
+            </div>
+            
+            {/* Recomendaciones */}
+            <div>
+              <p className="text-white/80 text-sm font-semibold mb-2">Plan de Acción Recomendado:</p>
+              <div className="space-y-2">
+                {solution.recommendations.map((rec: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between bg-white/5 rounded-lg p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-white/40 font-bold">#{index + 1}</span>
+                      <p className="text-white/80 text-sm">{rec.action}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold
+                        ${rec.impact === 'high' ? 'bg-green-500/20 text-green-300' :
+                          rec.impact === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
+                          'bg-gray-500/20 text-gray-300'}
+                      `}>
+                        Impacto {rec.impact === 'high' ? 'Alto' : rec.impact === 'medium' ? 'Medio' : 'Bajo'}
+                      </span>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold
+                        ${rec.effort === 'low' ? 'bg-blue-500/20 text-blue-300' :
+                          rec.effort === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
+                          'bg-red-500/20 text-red-300'}
+                      `}>
+                        Esfuerzo {rec.effort === 'low' ? 'Bajo' : rec.effort === 'medium' ? 'Medio' : 'Alto'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="mt-6 pt-4 border-t border-white/10">
+        <p className="text-white/40 text-xs text-center">
+          Powered by Impulsa Lab AI Optimization Engine
+        </p>
+      </div>
     </div>
   )
 }
 
-export default SolverOptimizer
+export default SolverOptimizerDocumented

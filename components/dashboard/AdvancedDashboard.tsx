@@ -285,6 +285,13 @@ const AdvancedDashboard: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center gap-3">
+                  {/* Powered by Impulsa Lab */}
+                  <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-lg border border-white/10">
+                    <span className="text-white/60 text-xs">Powered by</span>
+                    <span className="text-white font-bold text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      IMPULSA LAB
+                    </span>
+                  </div>
                   {mounted && lastUpdate && (
                     <span className="text-white/40 text-sm hidden md:block">
                       Última actualización: {lastUpdate}
@@ -330,32 +337,65 @@ const AdvancedDashboard: React.FC = () => {
                   </div>
                 </div>
               ) : dashboardData ? (
-                <div className="space-y-8">
-                  <TimeComparisonCards
-                    currentPeriod={timeRange?.label || ''}
-                    previousPeriod={timeRange?.comparison?.label || ''}
-                    data={dashboardData.cards}
-                  />
+<div className="space-y-8">
+  <TimeComparisonCards
+    currentPeriod={timeRange?.label || ''}
+    previousPeriod={timeRange?.comparison?.label || ''}
+    data={dashboardData.cards}
+  />
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                                  rounded-2xl p-6 border border-white/10">
-                      <h3 className="text-white font-semibold text-lg mb-4">Tendencia de Ingresos</h3>
-                      <RevenueChart period={timeRange?.granularity || 'month'} />
-                    </div>
-                    
-                    <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
-                                  rounded-2xl p-6 border border-white/10">
-                      <h3 className="text-white font-semibold text-lg mb-4">Distribución de Costos</h3>
-                      <ExpenseBreakdown period={timeRange?.granularity || 'month'} />
-                    </div>
+  <div className="px-4 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        {/* ... código existente ... */}
+      </div>
+
+      {/* AGREGAR ESTO */}
+      <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-white/10 rounded-lg">
+          <span className="text-white/60 text-xs">Powered by</span>
+          <span className="text-white font-bold text-xs">Impulsa Lab</span>
+        </div>
+
+                  {/* Powered by Impulsa Lab */}
+                  <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-lg border border-white/10">
+                    <span className="text-white/60 text-xs">Powered by</span>
+                    <span className="text-white font-bold text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      IMPULSA LAB
+                    </span>
                   </div>
+        {mounted && lastUpdate && (
+          <span className="text-white/40 text-sm">
+            Última actualización: {lastUpdate}
+          </span>
+        )}
+        {/* ... resto del código ... */}
+      </div>
+    </div>
+  </div>
 
-                  <RealTimeAIAnalysis 
-                    data={dashboardData}
-                    period={timeRange?.label || ''}
-                  />
-                </div>
+  {/* Agrupar los siguientes elementos en un fragmento para evitar error de elemento primario */}
+  <>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
+                    rounded-2xl p-6 border border-white/10">
+        <h3 className="text-white font-semibold text-lg mb-4">Tendencia de Ingresos</h3>
+        <RevenueChart period={timeRange?.granularity || 'month'} />
+      </div>
+      
+      <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
+                    rounded-2xl p-6 border border-white/10">
+        <h3 className="text-white font-semibold text-lg mb-4">Distribución de Costos</h3>
+        <ExpenseBreakdown period={timeRange?.granularity || 'month'} />
+      </div>
+    </div>
+
+    <RealTimeAIAnalysis 
+      data={dashboardData}
+      period={timeRange?.label || ''}
+    />
+  </>
+</div>
               ) : null
             )}
 
@@ -379,11 +419,7 @@ const AdvancedDashboard: React.FC = () => {
 
             {/* Vista Reportes */}
             {activeView === 'reports' && dashboardData && (
-              <PDFReportGenerator 
-                dashboardData={dashboardData}
-                period={timeRange?.label || 'Período Actual'}
-                businessName="Brooklyn Bistro"
-              />
+              <PDFReportGenerator />
             )}
 
             {/* Vista Data Connector */}

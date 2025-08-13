@@ -161,8 +161,9 @@ const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ currentData, onScenar
     <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-xl 
                     rounded-2xl p-6 border border-white/10">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-white font-bold text-xl flex items-center gap-2">
+        <h3 className="text-white font-bold text-xl flex items-center gap-3">
           <Calculator className="w-6 h-6 text-purple-400" />
+        <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold rounded-full animate-pulse">PREMIUM</span>
           Simulador What-If
         </h3>
         <span className="text-white/60 text-sm">

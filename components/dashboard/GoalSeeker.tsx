@@ -214,6 +214,7 @@ const GoalSeeker: React.FC<GoalSeekerProps> = ({ currentData }) => {
           <div className="flex items-center gap-3">
             <div className="p-3 bg-gradient-to-br from-green-600 to-teal-600 rounded-xl shadow-lg">
               <Target className="w-6 h-6 text-white" />
+        <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold rounded-full animate-pulse">PREMIUM</span>
             </div>
             <div>
               <h3 className="text-white font-bold text-xl">Goal Seeker</h3>
