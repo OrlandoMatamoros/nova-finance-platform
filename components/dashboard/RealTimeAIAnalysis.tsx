@@ -39,13 +39,21 @@ interface AIInsight {
   confidence?: number
 }
 
+interface RealTimeAIAnalysisProps {
+  selectedPeriod?: string
+  onSummaryGenerated?: (summary: string) => void
+}
+
 interface AnalysisSection {
   title: string
   icon: React.ReactElement
   insights: AIInsight[]
 }
 
-const RealTimeAIAnalysisAdvanced: React.FC = () => {
+const RealTimeAIAnalysisAdvanced: React.FC<RealTimeAIAnalysisProps> = ({ 
+  selectedPeriod = 'month',
+  onSummaryGenerated 
+}) => {
   const [insights, setInsights] = useState<AIInsight[]>([])
   const [analysisMode, setAnalysisMode] = useState<'basic' | 'situational' | 'strategic'>('basic')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -55,12 +63,13 @@ const RealTimeAIAnalysisAdvanced: React.FC = () => {
   const [financialData, setFinancialData] = useState<FinancialData | null>(null)
   const [apiStatus, setApiStatus] = useState<'checking' | 'active' | 'inactive'>('active')
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
   const [businessGoals, setBusinessGoals] = useState({
     revenue: 200000,
     margin: 35,
     customers: 3000
   })
+  const [analysisSummary, setAnalysisSummary] = useState<string>('')
+  const [showSummary, setShowSummary] = useState(false)
 
   useEffect(() => {
     generateRealisticDataWithHistory()
@@ -141,14 +150,18 @@ const RealTimeAIAnalysisAdvanced: React.FC = () => {
         return
       }
 
-      // Preparar prompt avanzado según el modo
+      // Preparar prompt avanzado según el modo y período
       const prompt = generateAdvancedPrompt(financialData, analysisMode)
       
-      // Llamar a la API
+      // Llamar a la API con modo y período
       const response = await fetch('/api/ai/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ 
+          prompt,
+          mode: analysisMode,
+          period: selectedPeriod 
+        })
       })
 
       if (!response.ok) {
@@ -160,6 +173,15 @@ const RealTimeAIAnalysisAdvanced: React.FC = () => {
       if (data.response) {
         const parsedInsights = parseAdvancedResponse(data.response, analysisMode)
         setInsights(parsedInsights)
+        
+        // Guardar y mostrar resumen
+        if (data.summary) {
+          setAnalysisSummary(data.summary)
+          setShowSummary(true)
+          if (onSummaryGenerated) {
+            onSummaryGenerated(data.summary)
+          }
+        }
       } else {
         // Fallback a análisis local avanzado
         generateAdvancedLocalInsights(financialData, analysisMode)
@@ -696,6 +718,39 @@ const RealTimeAIAnalysisAdvanced: React.FC = () => {
           </>
         )}
       </button>
+
+      {/* Resumen del Análisis (nuevo) */}
+      {showSummary && analysisSummary && (
+        <div className="mb-4 p-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-lg border border-indigo-500/20">
+          <div className="flex items-start justify-between mb-2">
+            <h4 className="text-white font-semibold flex items-center gap-2">
+              <Brain className="w-5 h-5 text-indigo-400" />
+              Resumen Ejecutivo del Análisis
+            </h4>
+            <button
+              onClick={() => setShowSummary(!showSummary)}
+              className="text-white/60 hover:text-white/80"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-white/80 text-sm space-y-2 whitespace-pre-line">
+            {analysisSummary}
+          </div>
+          <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+            <span className="text-xs text-white/50">
+              Período analizado: {selectedPeriod === 'day' ? 'Día' : 
+                               selectedPeriod === 'week' ? 'Semana' :
+                               selectedPeriod === 'month' ? 'Mes' :
+                               selectedPeriod === 'quarter' ? 'Trimestre' : 'Año'}
+            </span>
+            <button className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+              <Package className="w-3 h-3" />
+              Exportar a PDF
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Insights mejorados con agrupación */}
       <div className="space-y-3">
