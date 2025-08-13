@@ -1,0 +1,69 @@
+ .env.local                                                                                |    9 [32m+[m
+ .env.local.example                                                                        |   10 [32m+[m
+ .next/cache/config.json                                                                   |    6 [32m+[m[31m-[m
+ .next/cache/webpack/client-development/1.pack.gz                                          |  Bin [31m24934560[m -> [32m25065793[m bytes
+ .next/cache/webpack/client-development/2.pack.gz                                          |  Bin [31m0[m -> [32m94[m bytes
+ .next/cache/webpack/client-development/3.pack.gz                                          |  Bin [31m0[m -> [32m1062269[m bytes
+ .next/cache/webpack/client-development/index.pack.gz                                      |  Bin [31m233352[m -> [32m235444[m bytes
+ .next/cache/webpack/client-development/index.pack.gz.old                                  |  Bin [31m2007[m -> [32m2023[m bytes
+ .next/cache/webpack/server-development/0.pack.gz                                          |  Bin [31m6791331[m -> [32m4361858[m bytes
+ .next/cache/webpack/server-development/1.pack.gz                                          |  Bin [31m0[m -> [32m147349[m bytes
+ .next/cache/webpack/server-development/2.pack.gz                                          |  Bin [31m0[m -> [32m2591732[m bytes
+ .next/cache/webpack/server-development/3.pack.gz                                          |  Bin [31m0[m -> [32m2470887[m bytes
+ .next/cache/webpack/server-development/index.pack.gz                                      |  Bin [31m134720[m -> [32m143666[m bytes
+ .next/cache/webpack/server-development/index.pack.gz.old                                  |  Bin [31m0[m -> [32m137841[m bytes
+ .next/server/app-paths-manifest.json                                                      |    3 [32m+[m[31m-[m
+ .next/server/app/api/ai/analyze/route.js                                                  |   66 [32m+++[m
+ .next/server/app/page.js                                                                  |   22 [32m+[m[31m-[m
+ .next/server/app/page_client-reference-manifest.js                                        |    2 [32m+[m[31m-[m
+ .next/server/server-reference-manifest.js                                                 |    2 [32m+[m[31m-[m
+ .next/server/server-reference-manifest.json                                               |    2 [32m+[m[31m-[m
+ .next/server/vendor-chunks/next.js                                                        |  209 [32m+++++++++[m
+ .next/server/webpack-runtime.js                                                           |    2 [32m+[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_AdvancedDashboard_tsx.js      |   84 [32m+++[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_DataConnector_tsx.js          |   10 [32m+[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_GoalSeeker_tsx.js             |   22 [32m+[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_PDFReportGenerator_tsx.js     |   22 [32m+[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_SolverOptimizer_tsx.js        |   12 [32m+[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_ThemeConfigurator_tsx.js      |    2 [32m+[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_WhatIfSimulator_tsx.js        |   22 [32m+[m[31m-[m
+ .next/static/chunks/_app-pages-browser_components_dashboard_WhatsAppIntegration_tsx.js    |   42 [32m+[m[31m-[m
+ .next/static/chunks/app/layout.js                                                         |   12 [32m+[m[31m-[m
+ .next/static/chunks/webpack.js                                                            |    2 [32m+[m[31m-[m
+ .next/static/css/app/layout.css                                                           |  641 [32m+++++++++++++++++++[m[31m-------[m
+ .../app/{layout.1bbd91dbdf24d5a2.hot-update.js => layout.cdfe0ca3f5996e37.hot-update.js}  |    2 [32m+[m[31m-[m
+ .next/static/webpack/app/layout.d0fbecd381302081.hot-update.js                            |   21 [32m+[m
+ ...{1bbd91dbdf24d5a2.webpack.hot-update.json => cdfe0ca3f5996e37.webpack.hot-update.json} |    0
+ .next/static/webpack/d0fbecd381302081.webpack.hot-update.json                             |    1 [32m+[m
+ .../{webpack.1bbd91dbdf24d5a2.hot-update.js => webpack.cdfe0ca3f5996e37.hot-update.js}    |    2 [32m+[m[31m-[m
+ .next/static/webpack/webpack.d0fbecd381302081.hot-update.js                               |   18 [32m+[m
+ .next/trace                                                                               |  111 [32m++[m[31m---[m
+ .next/types/app/api/ai/analyze/route.ts                                                   |  343 [32m++++++++++++++[m
+ CONTEXT.md                                                                                |   94 [32m++++[m
+ app/api/ai/analyze/route.ts                                                               |  147 [32m++++++[m
+ app/demo/page.tsx                                                                         |    0
+ app/globals.css                                                                           |   16 [32m+[m
+ components/dashboard/AdvancedDashboard.tsx                                                |   92 [32m++[m[31m--[m
+ components/dashboard/GoalSeeker.backup.tsx                                                |  556 [32m+++++++++++++++++++++++[m
+ components/dashboard/GoalSeeker.tsx                                                       |    1 [32m+[m
+ components/dashboard/InitialSetupModal.tsx                                                |  224 [32m+++++++++[m
+ components/dashboard/PDFReportGenerator.tsx                                               |  629 [32m++++++++++++[m[31m--------------[m
+ components/dashboard/RealTimeAIAnalysis.tsx                                               | 1030 [32m+++++++++++++++++++++++++++++++[m[31m-----------[m
+ components/dashboard/SolverOptimizer.backup.tsx                                           |  498 [32m++++++++++++++++++++[m
+ components/dashboard/SolverOptimizer.tsx                                                  |  722 [32m++++++++++++[m[31m-----------------[m
+ components/dashboard/WhatIfSimulator.backup.tsx                                           |  418 [32m+++++++++++++++++[m
+ components/dashboard/WhatIfSimulator.tsx                                                  |    3 [32m+[m[31m-[m
+ components/dashboard/WhatsAppIntegration.tsx                                              |  668 [32m+++++++++++[m[31m----------------[m
+ estructura.txt                                                                            |    0
+ lib/ai/geminiConfig.ts                                                                    |   46 [32m++[m
+ lib/config/aiLimits.ts                                                                    |   46 [32m++[m
+ lib/config/themeConfig.ts                                                                 |  237 [32m+++[m[31m-------[m
+ lib/firebase/config.ts                                                                    |   34 [32m++[m
+ lib/services/gemini.ts                                                                    |  127 [32m++++++[m
+ next.config.ts                                                                            |   34 [32m++[m
+ package-lock.json                                                                         |  953 [32m+++++++++++++++++++++++++++++++++++++[m[31m-[m
+ package.json                                                                              |    3 [32m+[m
+ test-env-node.js                                                                          |   36 [32m++[m
+ test-env.js                                                                               |   36 [32m++[m
+ tsconfig.tsbuildinfo                                                                      |    1 [32m+[m
+ 68 files changed, 6348 insertions(+), 2005 deletions(-)
