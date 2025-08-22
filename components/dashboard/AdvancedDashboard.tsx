@@ -391,8 +391,6 @@ const AdvancedDashboard: React.FC = () => {
     </div>
 
     <RealTimeAIAnalysis 
-      data={dashboardData}
-      period={timeRange?.label || ''}
     />
   </>
 </div>
