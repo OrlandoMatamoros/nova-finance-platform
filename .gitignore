@@ -2,3 +2,12 @@ node_modules
 .next
 .next
 .vercel
+
+# Backups
+*_backup*
+*.backup*
+*.bak
+**/backup/
+**/*_backup*/
+components_backup*/
+components/dashboard_backup*/
