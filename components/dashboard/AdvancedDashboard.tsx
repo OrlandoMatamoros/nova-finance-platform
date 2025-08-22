@@ -182,7 +182,7 @@ const AdvancedDashboard: React.FC = () => {
       color: 'from-pink-600 to-purple-600',
       description: 'Personaliza colores'
     }
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900">
