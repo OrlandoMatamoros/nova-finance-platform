@@ -390,7 +390,11 @@ const AdvancedDashboard: React.FC = () => {
       </div>
     </div>
 
-    <RealTimeAIAnalysis selectedPeriod={timeRange?.label || "month"} />
+    <RealTimeAIAnalysis 
+    />
+  </>
+</div>
+              ) : null
             )}
 
             {/* Vista What-If Simulator */}

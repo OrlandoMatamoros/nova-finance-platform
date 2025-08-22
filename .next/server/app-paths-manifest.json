@@ -1,3 +1,9 @@
 {
+  "/_not-found": "app/_not-found.js",
+  "/api/ai/analyze/route": "app/api/ai/analyze/route.js",
+  "/api/ai/goalplan/route": "app/api/ai/goalplan/route.js",
+  "/api/ai/optimize/route": "app/api/ai/optimize/route.js",
+  "/api/ai/solver/route": "app/api/ai/solver/route.js",
+  "/demo/page": "app/demo/page.js",
   "/page": "app/page.js"
 }
